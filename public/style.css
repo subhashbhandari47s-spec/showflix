@@ -1157,3 +1157,40 @@ footer{
     min-width: 0;
   }
 }
+
+/* FINAL MOBILE NAVIGATION - SHOWFLIX */
+@media (max-width: 600px) {
+  .navbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .navbar .logo {
+    width: 100%;
+    text-align: center;
+    font-size: 22px;
+  }
+
+  .navbar .nav-links {
+    width: 100%;
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .navbar .nav-links a {
+    display: inline-block;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+}
