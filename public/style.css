@@ -1194,3 +1194,18 @@ footer{
     font-size: 13px;
   }
 }
+
+
+.profile-home-button {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 20px;
+}
+
+.profile-home-button .btn {
+  display: inline-block;
+  text-decoration: none;
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-weight: 700;
+}

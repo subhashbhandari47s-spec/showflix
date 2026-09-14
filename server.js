@@ -445,6 +445,10 @@ app.get("/", (req, res) => {
   <div id="continueWatching" class="continue-grid"></div>
 </section>
 
+<div class="profile-home-button">
+  <a href="/profile" class="btn">👤 Profile / Login</a>
+</div>
+
 <div class="search-box">
   <input
     id="searchInput"
