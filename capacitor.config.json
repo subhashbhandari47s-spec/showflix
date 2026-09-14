@@ -3,7 +3,7 @@
   "appName": "ShowFlix",
   "webDir": "public",
   "server": {
-    "url": "http://127.0.0.1:5000",
-    "cleartext": true
+    "url": "https://showflix-crbo.onrender.com",
+    "cleartext": false
   }
 }

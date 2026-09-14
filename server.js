@@ -371,7 +371,7 @@ function showCard(show) {
   );
 
   return `
-<div class="show-card" data-category="${escapeHtml(show.category)}">
+<div class="show-card" data-id="${show.id}" data-category="${escapeHtml(show.category)}">
   ${posterHtml(show)}
 
   <div class="card-content">
@@ -422,12 +422,27 @@ app.get("/", (req, res) => {
     page(
       "Home",
       `
-<section class="hero">
+<section class="hero premium-hero">
   <div class="hero-content">
+    <span class="hero-badge">🎬 STREAM • WATCH • ENJOY</span>
     <p class="small-label">WELCOME TO</p>
     <h1>SHOWFLIX</h1>
-    <p>Watch your favourite shows and episodes in one place.</p>
+    <p>Your favourite shows, seasons and episodes — all in one place.</p>
+    <div class="hero-actions">
+      <a class="btn hero-watch-btn" href="#trending">▶️ Explore Shows</a>
+      <a class="btn hero-fav-btn" href="/favorites">❤️ My Favorites</a>
+    </div>
   </div>
+</section>
+
+<section id="continueWatchingSection" class="continue-section">
+  <div class="continue-heading">
+    <div>
+      <span>YOUR WATCH HISTORY</span>
+      <h2>▶️ Continue Watching</h2>
+    </div>
+  </div>
+  <div id="continueWatching" class="continue-grid"></div>
 </section>
 
 <div class="search-box">
@@ -455,7 +470,7 @@ app.get("/", (req, res) => {
     .join("")}
 </div>
 
-<h2>🔥 Trending Now</h2>
+<section id="trending" class="premium-section-heading">\n  <div>\n    <span>WHAT TO WATCH</span>\n    <h2>🔥 Trending Now</h2>\n  </div>\n  <a class="btn" href="/favorites">❤️ Favorites</a>\n</section>
 
 <div class="show-grid">
   ${shows.map(showCard).join("")}
@@ -922,6 +937,24 @@ app.get("/admin/logout", (req, res) => {
 app.get("/admin", adminRequired, (req, res) => {
   const shows = getShows();
 
+  const totalShows = shows.length;
+
+  const totalSeasons = shows.reduce(
+    (sum, show) => sum + (show.seasons || []).length,
+    0
+  );
+
+  const totalEpisodes = shows.reduce(
+    (sum, show) =>
+      sum +
+      (show.seasons || []).reduce(
+        (seasonSum, season) =>
+          seasonSum + (season.episodes || []).length,
+        0
+      ),
+    0
+  );
+
   res.send(
     page(
       "Admin Panel",
@@ -933,6 +966,25 @@ app.get("/admin", adminRequired, (req, res) => {
   </div>
 
   <a class="btn btn-dark" href="/admin/logout">Logout</a>
+</div>
+
+<div class="admin-stats">
+
+  <div class="admin-stat">
+    <strong>${totalShows}</strong>
+    <span>🎬 Total Shows</span>
+  </div>
+
+  <div class="admin-stat">
+    <strong>${totalSeasons}</strong>
+    <span>📺 Total Seasons</span>
+  </div>
+
+  <div class="admin-stat">
+    <strong>${totalEpisodes}</strong>
+    <span>▶️ Total Episodes</span>
+  </div>
+
 </div>
 
 <div class="admin-actions">
@@ -1349,8 +1401,7 @@ app.get("/admin/add-episode/:id", adminRequired, (req, res) => {
   <input
     type="url"
     name="video"
-    placeholder="Video URL"
-    required
+    placeholder="Video URL (अगर file upload नहीं कर रहे हैं)"
   >
 
   
@@ -1373,55 +1424,280 @@ app.get("/admin/add-episode/:id", adminRequired, (req, res) => {
   );
 });
 
-app.post("/admin/add-episode/:id", adminRequired, videoUpload.single("videoFile"), (req, res) => {
-  const shows = getShows();
+app.post(
+  "/admin/add-episode/:id",
+  adminRequired,
+  videoUpload.single("videoFile"),
+  (req, res) => {
+    const shows = getShows();
 
-  const show = shows.find(
-    s => Number(s.id) === Number(req.params.id)
-  );
+    const show = shows.find(
+      s => Number(s.id) === Number(req.params.id)
+    );
 
-  if (!show) {
-    return res.status(404).send(
-      page("Not Found", "<h1>Show not found</h1>")
+    if (!show) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Show not found</h1>")
+      );
+    }
+
+    const seasonNumber = Number(req.body.season);
+    const episodeNumber = Number(req.body.episode);
+
+    if (!Array.isArray(show.seasons)) {
+      show.seasons = [];
+    }
+
+    let season = show.seasons.find(
+      s => Number(s.number) === seasonNumber
+    );
+
+    if (!season) {
+      season = {
+        number: seasonNumber,
+        episodes: []
+      };
+
+      show.seasons.push(season);
+    }
+
+    let videoUrl = String(req.body.video || "").trim();
+
+    // अगर Admin ने video file upload किया है
+    if (req.file) {
+      videoUrl = "/videos/" + req.file.filename;
+    }
+
+    // अगर न file upload हुई और न URL दिया गया
+    if (!videoUrl) {
+      videoUrl = DEMO_VIDEO;
+    }
+
+    season.episodes.push({
+      number: episodeNumber,
+      title: String(
+        req.body.title || `Episode ${episodeNumber}`
+      ),
+      video: videoUrl
+    });
+
+    show.seasons.sort((a, b) => a.number - b.number);
+
+    show.seasons.forEach(s => {
+      s.episodes.sort((a, b) => a.number - b.number);
+    });
+
+    saveShows(shows);
+
+    res.redirect("/admin");
+  }
+);
+
+/* EDIT EPISODE */
+
+app.get(
+  "/admin/edit-episode/:showId/:season/:episode",
+  adminRequired,
+  (req, res) => {
+    const shows = getShows();
+
+    const show = shows.find(
+      s => Number(s.id) === Number(req.params.showId)
+    );
+
+    if (!show) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Show not found</h1>")
+      );
+    }
+
+    const season = (show.seasons || []).find(
+      s => Number(s.number) === Number(req.params.season)
+    );
+
+    if (!season) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Season not found</h1>")
+      );
+    }
+
+    const episode = (season.episodes || []).find(
+      e => Number(e.number) === Number(req.params.episode)
+    );
+
+    if (!episode) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Episode not found</h1>")
+      );
+    }
+
+    res.send(
+      page(
+        "Edit Episode",
+        `
+<h1>✏️ Edit Episode</h1>
+
+<div class="notice">
+  <strong>${escapeHtml(show.title)}</strong>
+</div>
+
+<form class="form" method="POST"
+      action="/admin/edit-episode/${show.id}/${season.number}/${episode.number}"
+      enctype="multipart/form-data">
+
+  <input
+    type="number"
+    name="season"
+    min="1"
+    value="${season.number}"
+    placeholder="Season Number"
+    required
+  >
+
+  <input
+    type="number"
+    name="episode"
+    min="1"
+    value="${episode.number}"
+    placeholder="Episode Number"
+    required
+  >
+
+  <input
+    type="text"
+    name="title"
+    value="${escapeHtml(episode.title || "")}"
+    placeholder="Episode Title"
+    required
+  >
+
+  <input
+    type="url"
+    name="video"
+    value="${escapeHtml(
+      episode.video && !episode.video.startsWith("/videos/")
+        ? episode.video
+        : ""
+    )}"
+    placeholder="Video URL (अगर file upload नहीं कर रहे हैं)"
+  >
+
+  <div class="form-group" style="margin-top:12px;">
+    <label><strong>🎬 नया Video File Upload करें</strong></label>
+    <input
+      type="file"
+      name="videoFile"
+      accept="video/mp4,video/webm,video/quicktime,.m4v"
+    >
+    <small>MP4, WEBM, MOV, M4V — अधिकतम 500 MB</small>
+  </div>
+
+  <button class="btn" type="submit">
+    💾 Save Episode
+  </button>
+
+</form>
+`
+      )
     );
   }
+);
 
-  const seasonNumber = Number(req.body.season);
-  const episodeNumber = Number(req.body.episode);
+app.post(
+  "/admin/edit-episode/:showId/:season/:episode",
+  adminRequired,
+  videoUpload.single("videoFile"),
+  (req, res) => {
+    const shows = getShows();
 
-  if (!Array.isArray(show.seasons)) {
-    show.seasons = [];
+    const show = shows.find(
+      s => Number(s.id) === Number(req.params.showId)
+    );
+
+    if (!show) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Show not found</h1>")
+      );
+    }
+
+    const season = (show.seasons || []).find(
+      s => Number(s.number) === Number(req.params.season)
+    );
+
+    if (!season) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Season not found</h1>")
+      );
+    }
+
+    const episode = (season.episodes || []).find(
+      e => Number(e.number) === Number(req.params.episode)
+    );
+
+    if (!episode) {
+      return res.status(404).send(
+        page("Not Found", "<h1>Episode not found</h1>")
+      );
+    }
+
+    const oldVideo = episode.video;
+
+    episode.number = Number(req.body.episode);
+    episode.title = String(
+      req.body.title || `Episode ${episode.number}`
+    ).trim();
+
+    if (req.file) {
+      if (oldVideo && oldVideo.startsWith("/videos/")) {
+        const oldFile = path.join(
+          __dirname,
+          "public",
+          oldVideo
+        );
+
+        if (fs.existsSync(oldFile)) {
+          fs.unlinkSync(oldFile);
+        }
+      }
+
+      episode.video = "/videos/" + req.file.filename;
+    } else if (req.body.video !== undefined && req.body.video.trim()) {
+      episode.video = String(req.body.video).trim();
+    }
+
+    const newSeasonNumber = Number(req.body.season);
+
+    if (newSeasonNumber !== Number(req.params.season)) {
+      show.seasons = show.seasons.filter(
+        s => s !== season
+      );
+
+      let targetSeason = show.seasons.find(
+        s => Number(s.number) === newSeasonNumber
+      );
+
+      if (!targetSeason) {
+        targetSeason = {
+          number: newSeasonNumber,
+          episodes: []
+        };
+        show.seasons.push(targetSeason);
+      }
+
+      targetSeason.episodes.push(episode);
+    }
+
+    show.seasons.sort((a, b) => a.number - b.number);
+
+    show.seasons.forEach(s => {
+      s.episodes.sort((a, b) => a.number - b.number);
+    });
+
+    saveShows(shows);
+
+    res.redirect("/admin");
   }
-
-  let season = show.seasons.find(
-    s => Number(s.number) === seasonNumber
-  );
-
-  if (!season) {
-    season = {
-      number: seasonNumber,
-      episodes: []
-    };
-
-    show.seasons.push(season);
-  }
-
-  season.episodes.push({
-    number: episodeNumber,
-    title: String(req.body.title || `Episode ${episodeNumber}`),
-    video: String(req.body.video || DEMO_VIDEO)
-  });
-
-  show.seasons.sort((a, b) => a.number - b.number);
-
-  show.seasons.forEach(s => {
-    s.episodes.sort((a, b) => a.number - b.number);
-  });
-
-  saveShows(shows);
-
-  res.redirect("/admin");
-});
+);
 
 /* DELETE EPISODE */
 
@@ -1510,15 +1786,26 @@ ${
                 </span>
               </div>
 
-              <form
-                method="POST"
-                action="/admin/delete-episode/${show.id}/${season.number}/${episode.number}"
-                onsubmit="return confirm('Delete this episode?')"
-              >
-                <button class="btn danger" type="submit">
-                  🗑️ Delete
-                </button>
-              </form>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+                <a
+                  class="btn"
+                  href="/admin/edit-episode/${show.id}/${season.number}/${episode.number}"
+                >
+                  ✏️ Edit
+                </a>
+
+                <form
+                  method="POST"
+                  action="/admin/delete-episode/${show.id}/${season.number}/${episode.number}"
+                  onsubmit="return confirm('Delete this episode?')"
+                >
+                  <button class="btn danger" type="submit">
+                    🗑️ Delete
+                  </button>
+                </form>
+
+              </div>
 
             </div>
           `

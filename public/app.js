@@ -219,3 +219,84 @@ document.addEventListener("DOMContentLoaded", () => {
   applyFavoritesPage();
 });
 
+
+
+// =========================
+// ShowFlix Search + Category Filter
+// =========================
+(function () {
+  const cards = Array.from(document.querySelectorAll(".show-card"));
+  if (!cards.length) return;
+
+  const container = cards[0].parentElement;
+  if (!container) return;
+
+  const toolbar = document.createElement("div");
+  toolbar.className = "showflix-filter-bar";
+  toolbar.innerHTML = `
+    <input
+      id="showflixSearch"
+      type="search"
+      placeholder="🔍 Search shows..."
+      autocomplete="off"
+    >
+    <select id="showflixCategory">
+      <option value="">All Categories</option>
+    </select>
+  `;
+
+  container.parentElement.insertBefore(toolbar, container);
+
+  const categorySelect = toolbar.querySelector("#showflixCategory");
+  const searchInput = toolbar.querySelector("#showflixSearch");
+
+  const categories = [...new Set(
+    cards
+      .map(card => card.dataset.category)
+      .filter(Boolean)
+  )].sort();
+
+  categories.forEach(category => {
+    const option = document.createElement("option");
+    option.value = category;
+    option.textContent = category;
+    categorySelect.appendChild(option);
+  });
+
+  function filterShows() {
+    const query = searchInput.value.trim().toLowerCase();
+    const category = categorySelect.value;
+
+    let visible = 0;
+
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      const cardCategory = card.dataset.category || "";
+
+      const matchesSearch = !query || text.includes(query);
+      const matchesCategory = !category || cardCategory === category;
+
+      const show = matchesSearch && matchesCategory;
+      card.style.display = show ? "" : "none";
+
+      if (show) visible++;
+    });
+
+    let empty = container.querySelector(".showflix-no-results");
+
+    if (!visible) {
+      if (!empty) {
+        empty = document.createElement("div");
+        empty.className = "showflix-no-results";
+        empty.textContent = "😔 No shows found.";
+        container.appendChild(empty);
+      }
+      empty.style.display = "block";
+    } else if (empty) {
+      empty.style.display = "none";
+    }
+  }
+
+  searchInput.addEventListener("input", filterShows);
+  categorySelect.addEventListener("change", filterShows);
+})();
