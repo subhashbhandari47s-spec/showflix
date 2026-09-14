@@ -1209,3 +1209,37 @@ footer{
   border-radius: 12px;
   font-weight: 700;
 }
+
+/* SHOWFLIX - FINAL MOBILE NAV */
+@media (max-width: 600px) {
+  .navbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 12px 8px !important;
+  }
+
+  .navbar .logo {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  .navbar .nav-links {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    overflow: visible !important;
+  }
+
+  .navbar .nav-links a {
+    display: block !important;
+    flex: 0 1 auto !important;
+    padding: 8px 7px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    text-decoration: none !important;
+  }
+}
