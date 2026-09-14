@@ -331,6 +331,7 @@ function page(title, content, extraScript = "") {
 </header>
 
 <main class="container">
+    ${title !== "Home" ? `<button class="back-button" onclick="history.back()">← Back</button>` : ""}
 ${content}
 </main>
 
@@ -1372,7 +1373,7 @@ app.get("/admin/add-episode/:id", adminRequired, (req, res) => {
   );
 });
 
-app.post("/admin/add-episode/:id", adminRequired, (req, res) =>, videoUpload.single("videoFile"),{
+app.post("/admin/add-episode/:id", adminRequired, videoUpload.single("videoFile"), (req, res) => {
   const shows = getShows();
 
   const show = shows.find(

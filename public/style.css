@@ -767,3 +767,27 @@ footer{
 .show-card[style*="display: none"] {
   display: none !important;
 }
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 18px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #222;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.back-button:active {
+  transform: scale(.97);
+}
+@media (max-width: 600px) {
+  .back-button {
+    margin-top: 6px;
+    padding: 9px 14px;
+  }
+}
