@@ -53,6 +53,32 @@ const storage = multer.diskStorage({
   }
 });
 
+
+const videoStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "public/videos"));
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, Date.now() + "-" + Math.round(Math.random() * 1e9) + ext);
+  }
+});
+
+const videoUpload = multer({
+  storage: videoStorage,
+  limits: { fileSize: 500 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = [".mp4", ".webm", ".mov", ".m4v"];
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (!allowed.includes(ext)) {
+      return cb(new Error("Only MP4, WEBM, MOV and M4V videos are allowed"));
+    }
+
+    cb(null, true);
+  }
+});
+
 const upload = multer({
   storage,
   limits: {
@@ -70,6 +96,7 @@ const upload = multer({
 });
 
 app.use(express.static(path.join(__dirname, "public"), { index: false }));
+fs.mkdirSync(path.join(__dirname, "public/videos"), { recursive: true });
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -1291,7 +1318,7 @@ app.get("/admin/add-episode/:id", adminRequired, (req, res) => {
   <strong>${escapeHtml(show.title)}</strong>
 </div>
 
-<form class="form" method="POST">
+<form class="form" method="POST" enctype="multipart/form-data">
 
   <input
     type="number"
@@ -1324,7 +1351,18 @@ app.get("/admin/add-episode/:id", adminRequired, (req, res) => {
     required
   >
 
-  <button class="btn" type="submit">
+  
+<div class="form-group" style="margin-top:12px;">
+  <label><strong>या Video File Upload करें</strong></label>
+  <input
+    type="file"
+    name="videoFile"
+    accept="video/mp4,video/webm,video/quicktime,.m4v"
+  >
+  <small>MP4, WEBM, MOV, M4V — अधिकतम 500 MB</small>
+</div>
+
+<button class="btn" type="submit">
     Add Episode
   </button>
 </form>
@@ -1333,7 +1371,7 @@ app.get("/admin/add-episode/:id", adminRequired, (req, res) => {
   );
 });
 
-app.post("/admin/add-episode/:id", adminRequired, (req, res) => {
+app.post("/admin/add-episode/:id", adminRequired, (req, res) =>, videoUpload.single("videoFile"),{
   const shows = getShows();
 
   const show = shows.find(
