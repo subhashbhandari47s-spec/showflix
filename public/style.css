@@ -791,3 +791,50 @@ footer{
     padding: 9px 14px;
   }
 }
+
+/* Mobile video zoom fix */
+.player-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.player-wrapper video,
+.video-player video {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  max-height: 70vh;
+  object-fit: contain;
+  transform: none !important;
+  zoom: 1 !important;
+}
+
+.video-player,
+.player-wrapper {
+  transform: none !important;
+  zoom: 1 !important;
+}
+
+@media (max-width: 600px) {
+  .player-wrapper,
+  .video-player {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .player-wrapper video,
+  .video-player video {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 60vh;
+    object-fit: contain;
+  }
+
+  html, body {
+    overflow-x: hidden;
+  }
+}
