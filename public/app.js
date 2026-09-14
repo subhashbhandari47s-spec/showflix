@@ -171,3 +171,51 @@ async function loadContinueWatching() {
 document.addEventListener("DOMContentLoaded", () => {
   loadContinueWatching();
 });
+
+
+function applyFavoritesPage() {
+  if (location.pathname !== "/favorites") return;
+
+  const favorites = getFavs();
+  const cards = document.querySelectorAll(".show-card");
+  let visible = 0;
+
+  cards.forEach(card => {
+    const match = card.getAttribute("data-id");
+    const id = Number(match);
+
+    if (favorites.includes(id)) {
+      card.style.display = "";
+      visible++;
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  let empty = document.getElementById("favoritesEmpty");
+
+  if (visible === 0) {
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.id = "favoritesEmpty";
+      empty.className = "empty-state";
+      empty.innerHTML = `
+        <h2>❤️ No Favorites Yet</h2>
+        <p>Add shows to Favorites and they will appear here.</p>
+        <a class="btn" href="/">Browse Shows</a>
+      `;
+
+      const grid = document.querySelector(".show-grid");
+      if (grid) {
+        grid.parentNode.insertBefore(empty, grid);
+      }
+    }
+  } else if (empty) {
+    empty.remove();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  applyFavoritesPage();
+});
+

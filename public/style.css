@@ -748,3 +748,22 @@ footer{
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+
+.continue-info small {
+  display: inline-block;
+  margin: 5px 0 10px;
+  opacity: .75;
+}
+
+#favoritesEmpty {
+  margin: 20px 0;
+}
+
+.show-card {
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.show-card[style*="display: none"] {
+  display: none !important;
+}
