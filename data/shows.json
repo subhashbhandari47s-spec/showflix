@@ -1,0 +1,128 @@
+[
+  {
+    "id": 1,
+    "title": "My First Show",
+    "category": "Drama",
+    "emoji": "🎬",
+    "rating": "8.5",
+    "description": "A demo drama series for ShowFlix.",
+    "poster": "",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Episode 1",
+            "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Adventure World",
+    "category": "Adventure",
+    "emoji": "🌍",
+    "rating": "8.8",
+    "description": "An exciting adventure journey.",
+    "poster": "",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Episode 1",
+            "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Dream Story",
+    "category": "Drama",
+    "emoji": "⭐",
+    "rating": "9.0",
+    "description": "A beautiful dream story.",
+    "poster": "",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Episode 1",
+            "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Action Zone",
+    "category": "Action",
+    "emoji": "🔥",
+    "rating": "8.7",
+    "description": "Action packed entertainment.",
+    "poster": "",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Episode 1",
+            "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Comedy Night",
+    "category": "Comedy",
+    "emoji": "😂",
+    "rating": "8.2",
+    "description": "Fun and comedy for everyone.",
+    "poster": "",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Episode 1",
+            "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Mystery House",
+    "category": "Mystery",
+    "emoji": "🏠",
+    "rating": "8.9",
+    "description": "A mysterious house full of secrets.",
+    "poster": "",
+    "seasons": [
+      {
+        "number": 1,
+        "episodes": [
+          {
+            "number": 1,
+            "title": "Episode 1",
+            "video": "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+          }
+        ]
+      }
+    ]
+  }
+]
