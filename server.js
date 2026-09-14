@@ -961,6 +961,7 @@ ${
   <div class="admin-buttons">
     <a class="btn" href="/admin/edit-show/${show.id}">✏️ Edit</a>
     <a class="btn" href="/admin/add-episode/${show.id}">➕ Episode</a>
+      <a class="btn" href="/admin/manage-show/${show.id}">⚙️ Manage</a>
 
     <form
       method="POST"
